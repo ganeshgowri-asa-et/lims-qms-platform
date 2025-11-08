@@ -1,0 +1,80 @@
+# FastAPI and Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Database
+sqlalchemy==2.0.25
+alembic==1.13.1
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# Validation
+pydantic==2.5.3
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Authentication
+python-jose==3.3.0
+bcrypt==4.1.2
+
+# QR Code Generation
+qrcode[pil]==7.4.2
+Pillow==10.2.0
+
+# OCR for Certificate Extraction
+pytesseract==0.3.10
+pdf2image==1.17.0
+opencv-python==4.9.0.80
+
+# AI/ML for Predictive Maintenance
+scikit-learn==1.4.0
+numpy==1.26.3
+pandas==2.2.0
+prophet==1.1.5
+
+# Email/SMS Notifications
+fastapi-mail==1.4.1
+twilio==8.11.1
+
+# File Handling
+aiofiles==23.2.1
+openpyxl==3.1.2
+
+# Background Tasks
+celery==5.3.6
+redis==5.0.1
+
+# Monitoring and Logging
+python-json-logger==2.0.7
+
+# Testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+httpx==0.26.0
+
+# Code Quality
+black==24.1.1
+flake8==7.0.0
+mypy==1.8.0
+
+# CORS
+python-cors==1.0.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Date/Time
+python-dateutil==2.8.2
+pytz==2024.1
+
+# Digital Signatures
+cryptography==42.0.0
+ecdsa==0.18.0
+
+# Document Generation
+reportlab==4.0.8
+weasyprint==60.2
