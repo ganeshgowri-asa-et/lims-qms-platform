@@ -1,0 +1,33 @@
+# Streamlit Framework
+streamlit==1.30.0
+streamlit-aggrid==0.3.4.post3
+streamlit-option-menu==0.3.6
+
+# Data Visualization
+plotly==5.18.0
+matplotlib==3.8.2
+seaborn==0.13.1
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.3
+
+# API Communication
+requests==2.31.0
+httpx==0.26.0
+
+# Utilities
+python-dotenv==1.0.0
+pillow==10.2.0
+python-dateutil==2.8.2
+
+# PDF Generation
+reportlab==4.0.8
+pypdf==3.17.4
+
+# Authentication
+streamlit-authenticator==0.2.3
+
+# Testing
+pytest==7.4.4
+pytest-cov==4.1.0

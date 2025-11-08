@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: lims-qms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lims_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lims_password}
+      POSTGRES_DB: ${POSTGRES_DB:-lims_qms_db}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lims_user} -d ${POSTGRES_DB:-lims_qms_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lims-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: lims-qms-backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-lims_user}:${POSTGRES_PASSWORD:-lims_password}@postgres:5432/${POSTGRES_DB:-lims_qms_db}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+    volumes:
+      - ./backend:/app
+      - backend_logs:/app/logs
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - lims-network
+
+  # Streamlit Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: lims-qms-frontend
+    restart: unless-stopped
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:8000}
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "${FRONTEND_PORT:-8501}:8501"
+    depends_on:
+      - backend
+    command: streamlit run Home.py --server.port=8501 --server.address=0.0.0.0
+    networks:
+      - lims-network
+
+  # Redis (Optional - for caching and session management)
+  redis:
+    image: redis:7-alpine
+    container_name: lims-qms-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lims-network
+    profiles:
+      - full
+
+  # PgAdmin (Optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: lims-qms-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@lims-qms.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - postgres
+    networks:
+      - lims-network
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+    name: lims-qms-postgres-data
+  redis_data:
+    name: lims-qms-redis-data
+  pgadmin_data:
+    name: lims-qms-pgadmin-data
+  backend_logs:
+    name: lims-qms-backend-logs
+
+networks:
+  lims-network:
+    name: lims-qms-network
+    driver: bridge
