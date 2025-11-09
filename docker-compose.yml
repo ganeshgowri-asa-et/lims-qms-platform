@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:14
+    container_name: lims-qms-db
+    environment:
+      POSTGRES_USER: limsuser
+      POSTGRES_PASSWORD: limspass
+      POSTGRES_DB: lims_qms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U limsuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # LIMS QMS Application
+  app:
+    build: .
+    container_name: lims-qms-app
+    ports:
+      - "8000:8000"  # Backend API
+      - "8501:8501"  # Frontend UI
+    environment:
+      DATABASE_URL: postgresql://limsuser:limspass@db:5432/lims_qms_db
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      APP_NAME: LIMS QMS Platform
+      ORGANIZATION_NAME: Your Organization
+      DEBUG: "True"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./.env:/app/.env
+
+volumes:
+  postgres_data:

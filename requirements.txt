@@ -1,0 +1,47 @@
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+streamlit==1.28.1
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.12.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Data Processing
+pandas==2.1.3
+numpy==1.26.2
+
+# AI/ML for Root Cause Analysis
+openai==1.3.5
+anthropic==0.7.0
+
+# Utilities
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Barcode & QR
+qrcode==7.4.2
+python-barcode==0.15.1
+Pillow==10.1.0
+
+# PDF Generation
+reportlab==4.0.7
+PyPDF2==3.0.1
+
+# Date/Time
+python-dateutil==2.8.2
+
+# Visualization
+plotly==5.18.0
+matplotlib==3.8.2
+
+# HTTP Client
+httpx==0.25.1
+requests==2.31.0
