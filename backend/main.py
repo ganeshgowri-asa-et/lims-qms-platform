@@ -18,7 +18,13 @@ from backend.api.endpoints import (
     financial,
     crm,
     quality,
-    analytics
+    analytics,
+    workflow,
+    milestones,
+    risks,
+    quotations,
+    equipment_lifecycle,
+    time_tracking
 )
 import os
 
@@ -61,6 +67,14 @@ app.include_router(financial.router, prefix=f"{settings.API_V1_STR}/financial", 
 app.include_router(crm.router, prefix=f"{settings.API_V1_STR}/crm", tags=["CRM"])
 app.include_router(quality.router, prefix=f"{settings.API_V1_STR}/quality", tags=["Quality"])
 app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["Analytics"])
+
+# Workflow Automation Engine - Session 3
+app.include_router(workflow.router, prefix=f"{settings.API_V1_STR}/workflows", tags=["Workflows"])
+app.include_router(milestones.router, prefix=f"{settings.API_V1_STR}/milestones", tags=["Milestones"])
+app.include_router(risks.router, prefix=f"{settings.API_V1_STR}/risks", tags=["Risks"])
+app.include_router(quotations.router, prefix=f"{settings.API_V1_STR}/quotations", tags=["Quotations"])
+app.include_router(equipment_lifecycle.router, prefix=f"{settings.API_V1_STR}/equipment-lifecycle", tags=["Equipment Lifecycle"])
+app.include_router(time_tracking.router, prefix=f"{settings.API_V1_STR}/time-tracking", tags=["Time Tracking"])
 
 
 @app.on_event("startup")
