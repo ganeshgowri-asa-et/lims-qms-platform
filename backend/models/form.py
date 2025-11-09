@@ -4,6 +4,7 @@ Dynamic Form Engine models
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, JSON, Enum
 from sqlalchemy.orm import relationship
 from .base import BaseModel
+from .data_capture import RecordStatusEnum
 import enum
 
 
@@ -75,8 +76,10 @@ class FormRecord(BaseModel):
     template_id = Column(Integer, ForeignKey('form_templates.id'), nullable=False)
     record_number = Column(String(100), unique=True, nullable=False, index=True)
     title = Column(String(500), nullable=True)
-    status = Column(String(50), default='draft')  # draft, submitted, reviewed, approved, rejected
+    status = Column(Enum(RecordStatusEnum), default=RecordStatusEnum.DRAFT)
     submitted_at = Column(String(255), nullable=True)
+    rejected_at = Column(String(255), nullable=True)
+    rejection_reason = Column(Text, nullable=True)
 
     # Workflow
     doer_id = Column(Integer, ForeignKey('users.id'), nullable=True)
@@ -87,13 +90,29 @@ class FormRecord(BaseModel):
     checker_comments = Column(Text, nullable=True)
     approver_comments = Column(Text, nullable=True)
 
+    # Additional workflow fields
+    revision_number = Column(Integer, default=1)
+    parent_record_id = Column(Integer, ForeignKey('form_records.id'), nullable=True)  # For revisions
+
     # Metadata
     metadata = Column(JSON, nullable=True)
     attachments = Column(JSON, nullable=True)  # List of file paths
+    tags = Column(JSON, nullable=True)  # Searchable tags
+
+    # Quality metrics
+    completion_percentage = Column(Integer, default=0)
+    validation_score = Column(Integer, default=100)
+
+    # Timestamps
+    last_modified_at = Column(String(255), nullable=True)
+    due_date = Column(String(255), nullable=True)
 
     # Relationships
     template = relationship('FormTemplate', back_populates='records')
     values = relationship('FormValue', back_populates='record', cascade='all, delete-orphan')
+    doer = relationship('User', foreign_keys=[doer_id])
+    checker = relationship('User', foreign_keys=[checker_id])
+    approver = relationship('User', foreign_keys=[approver_id])
 
 
 class FormValue(BaseModel):

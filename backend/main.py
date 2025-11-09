@@ -11,6 +11,7 @@ from backend.api.endpoints import (
     users,
     documents,
     forms,
+    data_capture,
     projects,
     tasks,
     hr,
@@ -53,6 +54,7 @@ app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Aut
 app.include_router(users.router, prefix=f"{settings.API_V1_STR}/users", tags=["Users"])
 app.include_router(documents.router, prefix=f"{settings.API_V1_STR}/documents", tags=["Documents"])
 app.include_router(forms.router, prefix=f"{settings.API_V1_STR}/forms", tags=["Forms"])
+app.include_router(data_capture.router, prefix=f"{settings.API_V1_STR}/data-capture", tags=["Data Capture"])
 app.include_router(projects.router, prefix=f"{settings.API_V1_STR}/projects", tags=["Projects"])
 app.include_router(tasks.router, prefix=f"{settings.API_V1_STR}/tasks", tags=["Tasks"])
 app.include_router(hr.router, prefix=f"{settings.API_V1_STR}/hr", tags=["HR"])
