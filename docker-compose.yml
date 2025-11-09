@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: lims-qms-db
+    environment:
+      POSTGRES_DB: lims_qms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Application
+  api:
+    build: .
+    container_name: lims-qms-api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/lims_qms
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    volumes:
+      - ./app:/app/app
+      - ./reports:/app/reports
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Streamlit UI
+  ui:
+    build: .
+    container_name: lims-qms-ui
+    command: streamlit run streamlit_app/main.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      API_HOST: api
+      API_PORT: 8000
+    volumes:
+      - ./streamlit_app:/app/streamlit_app
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: lims-qms-network
