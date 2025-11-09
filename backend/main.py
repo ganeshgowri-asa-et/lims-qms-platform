@@ -18,7 +18,8 @@ from backend.api.endpoints import (
     financial,
     crm,
     quality,
-    analytics
+    analytics,
+    traceability
 )
 import os
 
@@ -61,14 +62,21 @@ app.include_router(financial.router, prefix=f"{settings.API_V1_STR}/financial", 
 app.include_router(crm.router, prefix=f"{settings.API_V1_STR}/crm", tags=["CRM"])
 app.include_router(quality.router, prefix=f"{settings.API_V1_STR}/quality", tags=["Quality"])
 app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["Analytics"])
+app.include_router(traceability.router, prefix=f"{settings.API_V1_STR}/traceability", tags=["Traceability"])
 
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize database on startup"""
     init_db()
+
+    # Register audit event listeners for automatic change tracking
+    from backend.services import register_audit_listeners
+    register_audit_listeners()
+
     print(f"🚀 {settings.APP_NAME} started successfully!")
     print(f"📚 API Documentation: http://localhost:8000/api/docs")
+    print(f"🔍 Traceability & Audit Engine: Enabled")
 
 
 @app.get("/")
