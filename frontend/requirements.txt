@@ -1,0 +1,9 @@
+# Streamlit
+streamlit==1.29.0
+
+# HTTP requests
+requests==2.31.0
+
+# Additional UI components
+plotly==5.18.0
+pandas==2.1.3

@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: lims-qms-db
+    environment:
+      POSTGRES_USER: lims_user
+      POSTGRES_PASSWORD: lims_password
+      POSTGRES_DB: lims_qms_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lims_user -d lims_qms_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lims-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lims-qms-backend
+    environment:
+      DATABASE_URL: postgresql://lims_user:lims_password@db:5432/lims_qms_db
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-this-in-production}
+      DEBUG: ${DEBUG:-False}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - lims-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lims-qms-frontend
+    environment:
+      API_BASE_URL: http://backend:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+    networks:
+      - lims-network
+
+networks:
+  lims-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
