@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: lims-qms-postgres
+    environment:
+      POSTGRES_DB: lims_qms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lims-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: lims-qms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lims-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: lims-qms-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lims_qms
+      ASYNC_DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/lims_qms
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - lims-network
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Streamlit Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: lims-qms-frontend
+    environment:
+      API_BASE_URL: http://backend:8000
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./frontend:/app/frontend
+    depends_on:
+      - backend
+    networks:
+      - lims-network
+    command: streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  lims-network:
+    driver: bridge
