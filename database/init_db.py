@@ -75,8 +75,114 @@ def seed_data():
                 db.add(level)
                 print(f"✅ Created document level: {level_data['level_name']}")
 
+        # Create sample KPI definitions
+        kpi_definitions_data = [
+            {
+                "kpi_code": "KPI-DOC-001",
+                "name": "Document Approval Time",
+                "description": "Average time to approve documents",
+                "category": "Quality",
+                "unit_of_measure": "days",
+                "target_value": 5.0,
+                "frequency": "Monthly",
+                "is_higher_better": False
+            },
+            {
+                "kpi_code": "KPI-TASK-001",
+                "name": "Task Completion Rate",
+                "description": "Percentage of tasks completed on time",
+                "category": "Productivity",
+                "unit_of_measure": "%",
+                "target_value": 90.0,
+                "frequency": "Monthly",
+                "is_higher_better": True
+            },
+            {
+                "kpi_code": "KPI-NC-001",
+                "name": "Nonconformance Closure Rate",
+                "description": "Percentage of NCs closed within target date",
+                "category": "Quality",
+                "unit_of_measure": "%",
+                "target_value": 95.0,
+                "frequency": "Monthly",
+                "is_higher_better": True
+            },
+            {
+                "kpi_code": "KPI-EQ-001",
+                "name": "Equipment Utilization",
+                "description": "Percentage of equipment actively used",
+                "category": "Productivity",
+                "unit_of_measure": "%",
+                "target_value": 85.0,
+                "frequency": "Monthly",
+                "is_higher_better": True
+            },
+            {
+                "kpi_code": "KPI-CUST-001",
+                "name": "Customer Satisfaction Score",
+                "description": "Average customer satisfaction rating",
+                "category": "Customer Satisfaction",
+                "unit_of_measure": "score",
+                "target_value": 4.5,
+                "frequency": "Quarterly",
+                "is_higher_better": True
+            }
+        ]
+
+        for kpi_data in kpi_definitions_data:
+            existing_kpi = db.query(KPIDefinition).filter(KPIDefinition.kpi_code == kpi_data["kpi_code"]).first()
+            if not existing_kpi:
+                kpi = KPIDefinition(**kpi_data, owner_id=admin_user.id, show_on_dashboard=True)
+                db.add(kpi)
+                print(f"✅ Created KPI: {kpi_data['name']}")
+
+        # Create sample quality objectives
+        quality_objectives_data = [
+            {
+                "objective_number": "QO-2025-001",
+                "title": "Reduce Document Approval Time",
+                "description": "Reduce average document approval time from 7 days to 5 days",
+                "category": "Process Improvement",
+                "measurable_target": "Average approval time <= 5 days",
+                "is_organizational": True
+            },
+            {
+                "objective_number": "QO-2025-002",
+                "title": "Improve NC Closure Rate",
+                "description": "Achieve 95% NC closure rate within target dates",
+                "category": "Quality",
+                "measurable_target": "NC closure rate >= 95%",
+                "is_organizational": True
+            },
+            {
+                "objective_number": "QO-2025-003",
+                "title": "Increase Customer Satisfaction",
+                "description": "Maintain customer satisfaction score above 4.5/5.0",
+                "category": "Customer Satisfaction",
+                "measurable_target": "Customer satisfaction >= 4.5",
+                "is_organizational": True
+            }
+        ]
+
+        for obj_data in quality_objectives_data:
+            existing_obj = db.query(QualityObjective).filter(
+                QualityObjective.objective_number == obj_data["objective_number"]
+            ).first()
+            if not existing_obj:
+                from datetime import date, timedelta
+                obj = QualityObjective(
+                    **obj_data,
+                    owner_id=admin_user.id,
+                    start_date=date.today(),
+                    target_date=date.today() + timedelta(days=365),
+                    status='active'
+                )
+                db.add(obj)
+                print(f"✅ Created quality objective: {obj_data['title']}")
+
         db.commit()
         print("✅ Initial data seeded successfully!")
+        print("✅ Analytics KPIs and objectives created!")
 
 
 if __name__ == "__main__":

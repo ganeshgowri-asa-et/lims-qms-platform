@@ -13,6 +13,13 @@ from .financial import Expense, Invoice, Payment, Revenue
 from .crm import Lead, Customer, Order, SupportTicket
 from .quality import NonConformance, Audit, CAPA, RiskAssessment
 from .notification import Notification
+from .analytics import (
+    KPIDefinition, KPIMeasurement, QualityObjective,
+    KaizenSuggestion, ImprovementInitiative, PDCARecord, EightDReport,
+    FiveWhyAnalysis, FishboneDiagram, FMEARecord,
+    BenchmarkData, CustomReport, ReportExecution,
+    AnalyticsCache, AnomalyDetection
+)
 
 __all__ = [
     "Base",
@@ -26,5 +33,10 @@ __all__ = [
     "Expense", "Invoice", "Payment", "Revenue",
     "Lead", "Customer", "Order", "SupportTicket",
     "NonConformance", "Audit", "CAPA", "RiskAssessment",
-    "Notification"
+    "Notification",
+    "KPIDefinition", "KPIMeasurement", "QualityObjective",
+    "KaizenSuggestion", "ImprovementInitiative", "PDCARecord", "EightDReport",
+    "FiveWhyAnalysis", "FishboneDiagram", "FMEARecord",
+    "BenchmarkData", "CustomReport", "ReportExecution",
+    "AnalyticsCache", "AnomalyDetection"
 ]
