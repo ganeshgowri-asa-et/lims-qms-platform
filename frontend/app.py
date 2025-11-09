@@ -95,6 +95,8 @@ def main_app():
                 "Dashboard",
                 "Documents",
                 "Forms",
+                "Workflow",
+                "Traceability",
                 "Projects",
                 "Tasks",
                 "HR",
@@ -105,13 +107,15 @@ def main_app():
                 "Quality",
                 "Analytics",
                 "AI Assistant",
+                "Admin",
                 "Settings"
             ],
             icons=[
                 'speedometer2', 'file-earmark-text', 'clipboard-check',
-                'diagram-3', 'list-task', 'people', 'cart',
-                'tools', 'currency-dollar', 'person-lines-fill',
-                'shield-check', 'bar-chart', 'robot', 'gear'
+                'arrow-repeat', 'diagram-3-fill', 'diagram-3', 'list-task',
+                'people', 'cart', 'tools', 'currency-dollar',
+                'person-lines-fill', 'shield-check', 'bar-chart',
+                'robot', 'gear-fill', 'gear'
             ],
             menu_icon="cast",
             default_index=0,
@@ -130,6 +134,10 @@ def main_app():
         show_documents()
     elif selected == "Forms":
         show_forms()
+    elif selected == "Workflow":
+        show_workflow()
+    elif selected == "Traceability":
+        show_traceability()
     elif selected == "Projects":
         show_projects()
     elif selected == "Tasks":
@@ -150,6 +158,8 @@ def main_app():
         show_analytics()
     elif selected == "AI Assistant":
         show_ai_assistant()
+    elif selected == "Admin":
+        show_admin()
     elif selected == "Settings":
         show_settings()
 
@@ -282,6 +292,24 @@ def show_ai_assistant():
     """AI Assistant page"""
     from pages import ai_assistant
     ai_assistant.show()
+
+
+def show_workflow():
+    """Workflow page"""
+    from pages import workflow
+    workflow.show()
+
+
+def show_traceability():
+    """Traceability page"""
+    from pages import traceability
+    traceability.show()
+
+
+def show_admin():
+    """Admin page"""
+    from pages import admin
+    admin.show()
 
 
 def show_settings():
