@@ -1,0 +1,3 @@
+"""
+LIMS-QMS Platform Backend
+"""
