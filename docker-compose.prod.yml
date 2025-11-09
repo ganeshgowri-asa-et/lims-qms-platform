@@ -1,0 +1,36 @@
+# Production environment overrides
+version: '3.8'
+
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - /data/lims-postgres:/var/lib/postgresql/data
+
+  redis:
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - /data/lims-redis:/data
+
+  backend:
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+    restart: always
+
+  dashboard:
+    environment:
+      ENVIRONMENT: production
+    restart: always
+
+  celery-worker:
+    environment:
+      ENVIRONMENT: production
+    restart: always
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always

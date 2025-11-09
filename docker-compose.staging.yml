@@ -1,0 +1,12 @@
+# Staging environment overrides
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      ENVIRONMENT: staging
+      DEBUG: "false"
+
+  dashboard:
+    environment:
+      ENVIRONMENT: staging
