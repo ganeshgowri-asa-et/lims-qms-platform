@@ -5,6 +5,10 @@ from backend.core.database import Base
 from .user import User, Role, Permission
 from .document import Document, DocumentVersion, DocumentLevel
 from .form import FormTemplate, FormField, FormRecord, FormValue
+from .form_workflow import (
+    WorkflowTransition, FormSignature, FormValidationRule, FormHistory,
+    FormNotificationTemplate, FormDataSource, FormDuplicateCheck, FormApprovalMatrix
+)
 from .traceability import TraceabilityLink, AuditLog
 from .workflow import Project, Task, Meeting, ActionItem
 from .hr import Employee, JobPosting, Candidate, Training, Leave, Attendance, Performance
@@ -19,6 +23,8 @@ __all__ = [
     "User", "Role", "Permission",
     "Document", "DocumentVersion", "DocumentLevel",
     "FormTemplate", "FormField", "FormRecord", "FormValue",
+    "WorkflowTransition", "FormSignature", "FormValidationRule", "FormHistory",
+    "FormNotificationTemplate", "FormDataSource", "FormDuplicateCheck", "FormApprovalMatrix",
     "TraceabilityLink", "AuditLog",
     "Project", "Task", "Meeting", "ActionItem",
     "Employee", "JobPosting", "Candidate", "Training", "Leave", "Attendance", "Performance",

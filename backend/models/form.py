@@ -41,6 +41,8 @@ class FormTemplate(BaseModel):
     # Relationships
     fields = relationship('FormField', back_populates='template', cascade='all, delete-orphan')
     records = relationship('FormRecord', back_populates='template')
+    duplicate_checks = relationship('FormDuplicateCheck', back_populates='template', cascade='all, delete-orphan')
+    approval_matrix = relationship('FormApprovalMatrix', back_populates='template', cascade='all, delete-orphan')
 
 
 class FormField(BaseModel):
@@ -66,6 +68,7 @@ class FormField(BaseModel):
 
     # Relationships
     template = relationship('FormTemplate', back_populates='fields')
+    validation_rules = relationship('FormValidationRule', back_populates='field', cascade='all, delete-orphan')
 
 
 class FormRecord(BaseModel):
@@ -94,6 +97,9 @@ class FormRecord(BaseModel):
     # Relationships
     template = relationship('FormTemplate', back_populates='records')
     values = relationship('FormValue', back_populates='record', cascade='all, delete-orphan')
+    transitions = relationship('WorkflowTransition', back_populates='record', cascade='all, delete-orphan')
+    signatures = relationship('FormSignature', back_populates='record', cascade='all, delete-orphan')
+    history = relationship('FormHistory', back_populates='record', cascade='all, delete-orphan')
 
 
 class FormValue(BaseModel):
