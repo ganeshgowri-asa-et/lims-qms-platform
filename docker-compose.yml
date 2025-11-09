@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis Cache
+  # Redis Cache & Message Broker
   redis:
     image: redis:7-alpine
     container_name: lims-qms-redis
@@ -35,6 +35,26 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
+      retries: 5
+
+  # RabbitMQ Message Queue (Alternative to Redis for Celery)
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: lims-qms-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - lims-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
       retries: 5
 
   # FastAPI Backend
@@ -79,9 +99,78 @@ services:
       - lims-network
     command: streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
 
+  # Celery Worker (Background Tasks)
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: lims-qms-celery-worker
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lims_qms
+      ASYNC_DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/lims_qms
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app/backend
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+      - ./exports:/app/exports
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lims-network
+    command: celery -A backend.integrations.celery_app worker --loglevel=info --concurrency=4
+
+  # Celery Beat (Scheduled Tasks)
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: lims-qms-celery-beat
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lims_qms
+      ASYNC_DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/lims_qms
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app/backend
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lims-network
+    command: celery -A backend.integrations.celery_app beat --loglevel=info
+
+  # Flower (Celery Monitoring)
+  flower:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: lims-qms-flower
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery-worker
+    networks:
+      - lims-network
+    command: celery -A backend.integrations.celery_app flower --port=5555
+
 volumes:
   postgres_data:
   redis_data:
+  rabbitmq_data:
 
 networks:
   lims-network:
