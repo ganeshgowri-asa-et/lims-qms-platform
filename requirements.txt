@@ -1,0 +1,52 @@
+# LIMS-QMS Platform - Session 8: Audit & Risk Management
+# Python Dependencies
+
+# FastAPI Backend
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.0
+
+# Streamlit Frontend
+streamlit==1.29.0
+pandas==2.1.4
+numpy==1.26.2
+plotly==5.18.0
+matplotlib==3.8.2
+
+# HTTP Client
+requests==2.31.0
+httpx==0.25.2
+
+# Data Validation & Serialization
+python-dateutil==2.8.2
+pytz==2023.3
+
+# File Processing
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+pypdf2==3.0.1
+
+# Utilities
+python-dotenv==1.0.0
+typing-extensions==4.9.0
+
+# Testing (Optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Code Quality (Optional)
+black==23.12.1
+flake8==7.0.0
+mypy==1.7.1
+
+# Documentation (Optional)
+mkdocs==1.5.3
+mkdocs-material==9.5.3
