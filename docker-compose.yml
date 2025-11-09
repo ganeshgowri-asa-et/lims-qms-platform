@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: lims_qms_db
+    environment:
+      POSTGRES_USER: lims_user
+      POSTGRES_PASSWORD: lims_password
+      POSTGRES_DB: lims_qms
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lims_user -d lims_qms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lims_network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lims_qms_backend
+    environment:
+      DB_USER: lims_user
+      DB_PASSWORD: lims_password
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: lims_qms
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      DEBUG: "True"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - lims_network
+
+  # Streamlit Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lims_qms_frontend
+    environment:
+      API_BASE_URL: http://backend:8000/api/v1
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+    command: streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port 8501
+    networks:
+      - lims_network
+
+volumes:
+  postgres_data:
+
+networks:
+  lims_network:
+    driver: bridge
